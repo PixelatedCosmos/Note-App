@@ -9,6 +9,26 @@ def getTitle():
         if titleInput:
             return titleInput
 
+def getNoteContent(title):
+    conn = sqlite3.connect("Notebook.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT content FROM notes WHERE title = ?", (title, ))
+    content = cursor.fetchone()[0]
+    conn.close()
+    return content
+
+def updateNoteContent(title, content):
+    try:
+        conn = sqlite3.connect("Notebook.db")
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE notes SET content = ? WHERE title = ?", (content, title))
+        conn.commit()
+        conn.close()
+    except sqlite3.Error as e:
+        messagebox.showerror("Error", f"Error updating the note content: {e}")
+
+
 def refresh(notesList):
     conn = sqlite3.connect("Notebook.db")
     cursor = conn.cursor()
@@ -57,7 +77,7 @@ def addButton(notesList):
                 conn.close()
 
                 refresh(notesList)
-                messagebox.showinfo("Success", "Note added successfully")
+
             else:
                 conn.close()
                 messagebox.showerror("Error", "Note with the same title already exists.")
@@ -65,30 +85,27 @@ def addButton(notesList):
         except sqlite3.Error as e:
             messagebox.showerror("Error", f"Error adding the note: {e}")
 
-
 def deleteButton(notesList):
     selected_index = notesList.curselection()
     
     if selected_index:
         selected_title = notesList.get(selected_index)
 
-        try:
-            conn = sqlite3.connect("Notebook.db")
-            cursor = conn.cursor()
-            cursor.execute("SELECT noteID FROM notes WHERE title = ?", (selected_title,))
-            note_id = cursor.fetchone()
+        # Ask for confirmation
+        confirm = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete the note?")
+        if confirm:
+            try:
+                conn = sqlite3.connect("Notebook.db")
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM notes WHERE title = ?", (selected_title,))    
 
-            if note_id:
-                cursor.execute("DELETE FROM notes WHERE noteID = ?", (note_id[0],))
                 conn.commit()
+                conn.close()
 
-            conn.close()
+                notesList.delete(selected_index)
 
-            notesList.delete(selected_index)
-            messagebox.showinfo("Success", "Note deleted successfully")
-
-        except sqlite3.Error as e:
-            messagebox.showerror("Error", f"Error deleting the note: {e}")
+            except sqlite3.Error as e:
+                messagebox.showerror("Error", f"Error deleting the note: {e}")
 
 
 

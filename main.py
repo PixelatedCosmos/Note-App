@@ -1,5 +1,5 @@
 import tkinter as tk
-from functions import createTable, addButton, deleteButton, refresh
+from functions import createTable, addButton, deleteButton, refresh, getNoteContent, updateNoteContent
 
 class NotesApp:
     def __init__(self, root):
@@ -31,8 +31,29 @@ class NotesApp:
         createTable()
         refresh(self.notesList)
 
+        self.notesList.bind("<ButtonRelease-1>", lambda event: self.displaySelectedNoteContent())
+        self.notesContent.bind("<KeyRelease>", self.autoSaveContent)
+
+    def autoSaveContent(self, event):
+        selectedIndex = self.notesList.curselection()
+
+        if selectedIndex:
+            selectedTitle = self.notesList.get(selectedIndex)
+            modifiedContent = self.notesContent.get("1.0", tk.END)
+
+            updateNoteContent(selectedTitle, modifiedContent)
+
     def add_button_click(self):
         addButton(self.notesList)
+
+    def displaySelectedNoteContent(self):
+        selectedIndex = self.notesList.curselection()
+
+        if selectedIndex:
+            selectedTitle = self.notesList.get(selectedIndex)
+            content = getNoteContent(selectedTitle)
+            self.notesContent.delete("1.0", tk.END)
+            self.notesContent.insert(tk.END, content)
 
 def main():
     root = tk.Tk()

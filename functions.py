@@ -45,16 +45,26 @@ def addButton(notesList):
         try:
             conn = sqlite3.connect("Notebook.db")
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO Notes (title, content, creationDate, lastModifiedDate) VALUES (?, ?, ?, ?)",
-                            (newTitle, "", newCreationDate, newLastModifiedDate))
-            conn.commit()
-            conn.close()
 
-            refresh(notesList)
-            messagebox.showinfo("Success", "Note added successfully")
+            # Check if the title already exists
+            cursor.execute("SELECT COUNT(*) FROM notes WHERE title = ?", (newTitle,))
+            count = cursor.fetchone()[0]
+            
+            if count == 0:
+                cursor.execute("INSERT INTO Notes (title, content, creationDate, lastModifiedDate) VALUES (?, ?, ?, ?)",
+                               (newTitle, "", newCreationDate, newLastModifiedDate))
+                conn.commit()
+                conn.close()
+
+                refresh(notesList)
+                messagebox.showinfo("Success", "Note added successfully")
+            else:
+                conn.close()
+                messagebox.showerror("Error", "Note with the same title already exists.")
 
         except sqlite3.Error as e:
             messagebox.showerror("Error", f"Error adding the note: {e}")
+
 
 def deleteButton(notesList):
     selected_index = notesList.curselection()

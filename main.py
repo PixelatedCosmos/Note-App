@@ -6,6 +6,7 @@ class NotesApp:
         self.root = root
         self.root.title("Notes")
         self.root.geometry("600x500")
+        self.root.minsize(400, 450)
         self.root.resizable(True, True)
 
         self.setup_ui()
@@ -16,7 +17,7 @@ class NotesApp:
 
         self.notesList = tk.Listbox(self.paned_window)
         self.notesList.grid(row=0, column=0, padx=1, pady=1, sticky="nsew")
-        self.notesContent = tk.Text(self.paned_window)
+        self.notesContent = tk.Text(self.paned_window, state=tk.DISABLED)  # Start as disabled
         self.notesContent.grid(row=0, column=1, padx=1, pady=1, sticky="nsew")
 
         self.paned_window.add(self.notesList)
@@ -52,8 +53,11 @@ class NotesApp:
         if selectedIndex:
             selectedTitle = self.notesList.get(selectedIndex)
             content = getNoteContent(selectedTitle)
+            self.notesContent.config(state=tk.NORMAL)  # Enable the text widget
             self.notesContent.delete("1.0", tk.END)
             self.notesContent.insert(tk.END, content)
+        else:
+            self.notesContent.config(state=tk.DISABLED)  # Disable the text widget if nothing is selected
 
 def main():
     root = tk.Tk()

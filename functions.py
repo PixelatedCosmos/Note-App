@@ -55,7 +55,7 @@ def createTable():
     conn.commit()
     conn.close()
 
-def addButton(notesList):
+def addButton(notesList, notesContent):
     newTitle = getTitle()
 
     if newTitle:
@@ -69,7 +69,7 @@ def addButton(notesList):
             # Check if the title already exists
             cursor.execute("SELECT COUNT(*) FROM notes WHERE title = ?", (newTitle,))
             count = cursor.fetchone()[0]
-            
+
             if count == 0:
                 cursor.execute("INSERT INTO Notes (title, content, creationDate, lastModifiedDate) VALUES (?, ?, ?, ?)",
                                (newTitle, "", newCreationDate, newLastModifiedDate))
@@ -77,6 +77,7 @@ def addButton(notesList):
                 conn.close()
 
                 refresh(notesList)
+                notesContent.delete("1.0", END)  # Clear the notesContent Text widget
 
             else:
                 conn.close()
@@ -84,6 +85,8 @@ def addButton(notesList):
 
         except sqlite3.Error as e:
             messagebox.showerror("Error", f"Error adding the note: {e}")
+
+    return newTitle  # Return the newTitle, so you can use it in NotesApp
 
 def deleteButton(notesList, notesContent):
     selected_index = notesList.curselection()

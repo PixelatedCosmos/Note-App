@@ -42,7 +42,11 @@ class NotesApp:
             updateNoteContent(self.lastSelectedNote, modifiedContent)
 
     def add_button_click(self):
-        addButton(self.notesList)
+        newTitle = addButton(self.notesList, self.notesContent)  # Pass both arguments
+
+        if newTitle:
+            self.displaySelectedNoteContent()  # Update the content in the Text widget
+
 
     def displaySelectedNoteContent(self):
         selectedIndex = self.notesList.curselection()

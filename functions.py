@@ -85,7 +85,7 @@ def addButton(notesList):
         except sqlite3.Error as e:
             messagebox.showerror("Error", f"Error adding the note: {e}")
 
-def deleteButton(notesList):
+def deleteButton(notesList, notesContent):
     selected_index = notesList.curselection()
     
     if selected_index:
@@ -103,6 +103,7 @@ def deleteButton(notesList):
                 conn.close()
 
                 notesList.delete(selected_index)
+                notesContent.delete("1.0", END)
 
             except sqlite3.Error as e:
                 messagebox.showerror("Error", f"Error deleting the note: {e}")

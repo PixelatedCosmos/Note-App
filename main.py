@@ -10,6 +10,7 @@ class NotesApp:
         self.root.resizable(True, True)
 
         self.setup_ui()
+        self.lastSelectedNote = ""
 
     def setup_ui(self):
         self.paned_window = tk.PanedWindow(self.root, orient=tk.HORIZONTAL, sashrelief=tk.RAISED, sashwidth=5)
@@ -17,7 +18,7 @@ class NotesApp:
 
         self.notesList = tk.Listbox(self.paned_window)
         self.notesList.grid(row=0, column=0, padx=1, pady=1, sticky="nsew")
-        self.notesContent = tk.Text(self.paned_window, state=tk.DISABLED)  # Start as disabled
+        self.notesContent = tk.Text(self.paned_window)
         self.notesContent.grid(row=0, column=1, padx=1, pady=1, sticky="nsew")
 
         self.paned_window.add(self.notesList)
@@ -26,7 +27,7 @@ class NotesApp:
         self.add_button = tk.Button(self.root, text="Add", width=5, command=self.add_button_click)
         self.add_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        self.delete_button = tk.Button(self.root, text="Delete", width=5, command=lambda: deleteButton(self.notesList))
+        self.delete_button = tk.Button(self.root, text="Delete", width=5, command=lambda: deleteButton(self.notesList, self.notesContent))
         self.delete_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         createTable()
@@ -36,13 +37,9 @@ class NotesApp:
         self.notesContent.bind("<KeyRelease>", self.autoSaveContent)
 
     def autoSaveContent(self, event):
-        selectedIndex = self.notesList.curselection()
-
-        if selectedIndex:
-            selectedTitle = self.notesList.get(selectedIndex)
+        if self.lastSelectedNote:
             modifiedContent = self.notesContent.get("1.0", tk.END)
-
-            updateNoteContent(selectedTitle, modifiedContent)
+            updateNoteContent(self.lastSelectedNote, modifiedContent)
 
     def add_button_click(self):
         addButton(self.notesList)
@@ -53,11 +50,10 @@ class NotesApp:
         if selectedIndex:
             selectedTitle = self.notesList.get(selectedIndex)
             content = getNoteContent(selectedTitle)
-            self.notesContent.config(state=tk.NORMAL)  # Enable the text widget
             self.notesContent.delete("1.0", tk.END)
             self.notesContent.insert(tk.END, content)
-        else:
-            self.notesContent.config(state=tk.DISABLED)  # Disable the text widget if nothing is selected
+
+            self.lastSelectedNote = selectedTitle
 
 def main():
     root = tk.Tk()
